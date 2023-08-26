@@ -6,16 +6,21 @@ const { Band } = db;
 
 // Find all bands in the database
 bands.get('/', async (req, res) => {
-    const { name = '' } = req.query;
+    const { name = '', limit = 2, offset = 0 } = req.query;
 
     try {
         const foundBands = await Band.findAll({
-            order: [['available_start_time', 'ASC'], ['name', 'ASC']],
-            where: { 
+            order: [
+                ['available_start_time', 'ASC'], 
+                ['name', 'ASC']
+            ],
+            where: {
                 name: {
                     [Op.iLike]: `%${name}%`
                 }
-            }
+            },
+            limit,
+            offset
         })
         res.status(200).json({ foundBands });
     } catch (error) {
@@ -83,16 +88,6 @@ bands.delete('/:id', async (req, res) => {
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
 })
-
-// 404 error
-// bands.get('*', (req, res) => {
-//     try {
-//         res.status(404).json({ message: 'Page not found' });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({ message: 'Something went wrong', error: error.message });
-//     }
-// })
 
 // Export the bands controller
 module.exports = bands;

@@ -1,12 +1,22 @@
 //Dependencies
 const bands = require('express').Router();
 const db = require('../models');
+const { Op } = require('sequelize');
 const { Band } = db;
 
 // Find all bands in the database
 bands.get('/', async (req, res) => {
+    const { name = '' } = req.query;
+
     try {
-        const foundBands = await Band.findAll()
+        const foundBands = await Band.findAll({
+            order: [['available_start_time', 'ASC'], ['name', 'ASC']],
+            where: { 
+                name: {
+                    [Op.iLike]: `%${name}%`
+                }
+            }
+        })
         res.status(200).json({ foundBands });
     } catch (error) {
         console.log(error);
@@ -35,7 +45,7 @@ bands.post('/', async (req, res) => {
             message: 'Successfully inserted a new band',
             data: newBand
         })
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
@@ -52,7 +62,7 @@ bands.put('/:id', async (req, res) => {
             message: `Successfully updated ${updatedBands} band(s)`,
             data: updatedBands
         })
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
@@ -68,7 +78,7 @@ bands.delete('/:id', async (req, res) => {
             message: `Successfully deleted ${deletedBands} band(s)`,
             data: deletedBands
         })
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }

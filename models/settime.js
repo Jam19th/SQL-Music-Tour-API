@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   SetTime.init({
-    set_time_id: {
+    set_times_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SetTime',
-    tableName: '  ',
+    tableName: 'set_times',
     timestamps: false
 
   });

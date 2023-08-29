@@ -31,7 +31,7 @@ bands.get('/', async (req, res) => {
 
 // Find one band by id
 bands.get('/:name', async (req, res) => {
-    const { event: eventName = '' } = req.query
+    const { event: eventName = '' } = req.params
 
     const where = {
         name: {
@@ -40,7 +40,7 @@ bands.get('/:name', async (req, res) => {
     }
 
     try {
-        console.log("finding band");
+        // console.log("finding band");
         const foundBand = await Band.findOne({
             attributes: {
                 exclude:
@@ -69,27 +69,27 @@ bands.get('/:name', async (req, res) => {
                         where
                     }
                 },
-                // {
-                //     model: SetTime,
-                //     as: 'setTimes',
-                // attributes: {
-                //     exclude:
-                //         ['set_time_id', 'band_id', 'stage_id']
-                // },
-                //     include: {
-                //         model: Event,
-                //         as: 'event',
-                // attributes: {
-                //     exclude:
-                //         ['set_time_id', 'band_id', 'stage_id']
-                // },
-                //         where
-                //     }
-                // }
+                {
+                    model: SetTime,
+                    as: 'setTimes',
+                attributes: {
+                    exclude:
+                        ['set_times_id', 'event_id', 'band_id', 'stage_id']
+                },
+                    include: {
+                        model: Event,
+                        as: 'event',
+                attributes: {
+                    exclude:
+                        ['event_id']
+                },
+                        where
+                    }
+                }
             ],
             order: [
                 [{ model: MeetGreet, as: 'meetGreets' }, { model: Event, as: 'event' }, 'date', 'ASC'],
-                // [{ model: SetTime, as: 'setTimes' }, { model: Event, as: 'event' }, 'date', 'ASC']
+                [{ model: SetTime, as: 'setTimes' }, { model: Event, as: 'event' }, 'date', 'ASC']
             ]
         })
         console.log("found band", foundBand);

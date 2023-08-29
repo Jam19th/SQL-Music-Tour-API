@@ -6,7 +6,7 @@ const { Event } = db;
 
 // Find all events in the database
 events.get('/', async (req, res) => {
-    const { name = '', limit = 2, offset = 0 } = req.query;
+    const { name = '', limit = 10, offset = 0 } = req.query;
 
     try {
         const foundEvents = await Event.findAll({

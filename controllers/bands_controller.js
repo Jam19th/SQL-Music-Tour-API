@@ -2,16 +2,16 @@
 const bands = require('express').Router();
 const db = require('../models');
 const { Op } = require('sequelize');
-const { Band } = db;
+const { Band, MeetGreet, Event, SetTime } = db;
 
 // Find all bands in the database
 bands.get('/', async (req, res) => {
-    const { name = '', limit = 2, offset = 0 } = req.query;
+    const { name = '', limit = 10, offset = 0 } = req.query;
 
     try {
         const foundBands = await Band.findAll({
             order: [
-                ['available_start_time', 'ASC'], 
+                ['available_start_time', 'ASC'],
                 ['name', 'ASC']
             ],
             where: {
@@ -30,14 +30,72 @@ bands.get('/', async (req, res) => {
 })
 
 // Find one band by id
-bands.get('/:id', async (req, res) => {
+bands.get('/:name', async (req, res) => {
+    const { event: eventName = '' } = req.query
+
+    const where = {
+        name: {
+            [Op.iLike]: `%${eventName}%`
+        }
+    }
+
     try {
+        console.log("finding band");
         const foundBand = await Band.findOne({
-            where: { band_id: req.params.id }
+            attributes: {
+                exclude:
+                    ['band_id']
+            },
+            where: {
+                name: {
+                    [Op.iLike]: `%${req.params.name}%`
+                }
+            },
+            include: [
+                {
+                    model: MeetGreet,
+                    as: 'meetGreets',
+                    attributes: {
+                        exclude:
+                            ['meet_greet_id', 'event_id', 'band_id']
+                    },
+                    include: {
+                        model: Event,
+                        attributes: {
+                            exclude:
+                                ['event_id']
+                        },
+                        as: 'event',
+                        where
+                    }
+                },
+                // {
+                //     model: SetTime,
+                //     as: 'setTimes',
+                // attributes: {
+                //     exclude:
+                //         ['set_time_id', 'band_id', 'stage_id']
+                // },
+                //     include: {
+                //         model: Event,
+                //         as: 'event',
+                // attributes: {
+                //     exclude:
+                //         ['set_time_id', 'band_id', 'stage_id']
+                // },
+                //         where
+                //     }
+                // }
+            ],
+            order: [
+                [{ model: MeetGreet, as: 'meetGreets' }, { model: Event, as: 'event' }, 'date', 'ASC'],
+                // [{ model: SetTime, as: 'setTimes' }, { model: Event, as: 'event' }, 'date', 'ASC']
+            ]
         })
+        console.log("found band", foundBand);
         res.status(200).json({ foundBand });
     } catch (error) {
-        console.log(error);
+        console.log("error", error);
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
 })

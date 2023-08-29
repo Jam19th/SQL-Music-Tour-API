@@ -6,7 +6,7 @@ const { Stage } = db;
 
 // Find all stages in the database
 stages.get('/', async (req, res) => {
-    const { name = '', limit = 2, offset = 0 } = req.query;
+    const { name = '', limit = 10, offset = 0 } = req.query;
 
     try {
         const foundStages = await Stage.findAll({
